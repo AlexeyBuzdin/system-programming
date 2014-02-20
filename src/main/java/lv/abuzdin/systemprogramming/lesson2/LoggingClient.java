@@ -13,13 +13,19 @@ public class LoggingClient {
         Socket client = new Socket(HOST, PORT);
         System.out.println("Client started");
 
+        final Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please enter your login: ");
+        final String login = scanner.nextLine();
+        System.out.println("Feel free to chat");
+
         new Thread(() -> {
             try {
                 OutputStream outToServer = client.getOutputStream();
                 DataOutputStream out = new DataOutputStream(outToServer);
 
-                Scanner in = new Scanner(System.in);
-                for (String line = in.nextLine(); !line.equalsIgnoreCase("q"); line = in.nextLine()) {
+                out.writeUTF(login);
+                for (String line = scanner.nextLine(); !line.equalsIgnoreCase("q"); line = scanner.nextLine()) {
                     out.writeUTF(line);
                 }
             } catch (IOException ignored) {}
@@ -31,7 +37,7 @@ public class LoggingClient {
                 DataInputStream in = new DataInputStream(inputStream);
 
                 while (true) {
-                    System.out.println("Received: " + in.readUTF());
+                    System.out.println(in.readUTF());
                     Thread.sleep(1000);
                 }
             } catch (Exception ignored) {}
