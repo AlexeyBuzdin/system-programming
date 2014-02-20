@@ -1,0 +1,27 @@
+# Binary files
+*.class
+
+# Packages
+*.jar
+*.ear
+*.war
+
+# Generated files
+
+
+# Generated folders
+out/
+bin/
+gen/
+target/
+.gradle/
+
+# Project files
+.idea/
+*.iml
+.project
+.classpath
+
+# Misc
+*.DS_Store
+*.swp
