@@ -17,15 +17,11 @@ public class LoggingServer {
             DataOutputStream out = new DataOutputStream(client.getOutputStream())) {
             while (true) {
                 String line = in.readUTF();
-                if (line != null) {
-                    System.out.println(line);
-                    out.writeUTF(line);
-                }
+                System.out.println(line);
+                out.writeUTF(line);
                 Thread.sleep(100);
             }
-        } catch (IOException e) {
-
-        }
+        } catch (IOException e) {}
         serverSocket.close();
     }
 }

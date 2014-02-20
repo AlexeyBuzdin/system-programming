@@ -31,7 +31,7 @@ public class LoggingClient {
                 DataInputStream in = new DataInputStream(inputStream);
 
                 while (true) {
-                    System.out.println("Received" + in.readUTF());
+                    System.out.println("Received: " + in.readUTF());
                     Thread.sleep(1000);
                 }
             } catch (Exception ignored) {}
