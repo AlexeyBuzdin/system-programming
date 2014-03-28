@@ -1,21 +1,30 @@
 package lv.abuzdin.systemprogramming.lesson2;
 
-import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class LoggingServer {
 
     public static final int PORT = 8080;
     public static final int MAX_THREADS = 5;
 
+    private static Logger logger = LoggerFactory.getLogger(LoggingServer.class);
+
     private static Executor executor = Executors.newFixedThreadPool(MAX_THREADS);
-    private static final ConcurrentLinkedDeque<Socket> deque = new ConcurrentLinkedDeque<>();
+    private static ConcurrentLinkedDeque<Socket> deque = new ConcurrentLinkedDeque<>();
 
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = new ServerSocket(PORT);
-        System.out.println("Server started; Listening port " + PORT);
+        logger.info("Server started; Listening port " + PORT);
 
         while (!exit()) {
             Socket client = listenForClient(serverSocket);
@@ -40,7 +49,7 @@ public class LoggingServer {
                 while (true) {
                     String line = in.readUTF();
                     String message = login + " : " + line;
-                    System.out.println(message);
+                    logger.info(message);
                     sendMessageForClients(client.hashCode(), message);
 
                     Thread.sleep(100);
