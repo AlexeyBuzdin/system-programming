@@ -1,9 +1,13 @@
 package lv.abuzdin.systemprogramming.lesson3.server;
 
+import com.google.inject.Inject;
+import lv.abuzdin.systemprogramming.lesson3.server.jobs.ConsoleControlJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Deque;
@@ -17,55 +21,39 @@ public class ChatServer {
     public static final int PORT = 8080;
     public static final int MAX_THREADS = 5;
 
-    public static final String EXIT_COMMAND = "exit";
-
     private static Logger logger = LoggerFactory.getLogger(ChatServer.class);
 
-    private ExecutorService toolsExecutor = Executors.newFixedThreadPool(MAX_THREADS);
     private ExecutorService socketsExecutor = Executors.newFixedThreadPool(MAX_THREADS);
     private ExecutorService openConnectionExecutor = Executors.newSingleThreadExecutor();
 
     private Deque<Socket> deque = new ConcurrentLinkedDeque<>();
 
     private AtomicBoolean pendingSocketListener = new AtomicBoolean();
-    private AtomicBoolean exitFlag = new AtomicBoolean();
+
+    @Inject
+    ConsoleControlJob consoleControl;
+
+    @Inject
+    ServerRunningState server;
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
-            startListeningConsole();
+            consoleControl.start();
             startServer(serverSocket);
 
         } catch (Exception e) {
             logger.error("Server crashed: ", e);
         } finally {
-            toolsExecutor.shutdownNow();
             socketsExecutor.shutdownNow();
             openConnectionExecutor.shutdownNow();
             logger.info("Server shutdown successfully");
         }
     }
 
-    private void startListeningConsole() {
-        toolsExecutor.execute(() -> {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))){
-                String command;
-                while (!exit()) {
-                    command = reader.readLine();
-                    if (command.trim().equalsIgnoreCase(EXIT_COMMAND)) {
-                        exitFlag.set(true);
-                        logger.info("Server started shutting down");
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
     private void startServer(ServerSocket serverSocket) throws IOException, InterruptedException {
         logger.info("Server started; Listening port " + PORT);
-        while (!exit()) {
+        while (server.running()) {
             if(!pendingSocketListener.get()) {
                 pendingSocketListener.set(true);
                 openConnectionExecutor.execute(() -> {
@@ -83,10 +71,6 @@ public class ChatServer {
         }
     }
 
-    private boolean exit() {
-        return exitFlag.get();
-    }
-
     private Socket listenForClient(ServerSocket serverSocket) throws IOException {
         return serverSocket.accept();
     }
@@ -95,7 +79,7 @@ public class ChatServer {
         return () -> {
             try(DataInputStream in = new DataInputStream(client.getInputStream())) {
                 String login = in.readUTF();
-                while (!exit()) {
+                while (server.running()) {
                     String line = in.readUTF();
                     String message = login + " : " + line;
                     logger.info(message);
