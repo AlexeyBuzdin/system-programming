@@ -19,6 +19,7 @@ public class MessengerJob {
     ServerRunningState server;
 
     private Socket client;
+    private String login;
     private DataInputStream dataInputStream;
 
     public void start(Socket clientSocket) {
@@ -26,13 +27,13 @@ public class MessengerJob {
             this.client = clientSocket;
             this.dataInputStream = in;
 
-            String login = in.readUTF();
+            doHandshake(in);
             while (server.running()) {
-                String line = dataInputStream.readUTF();
+                String line = in.readUTF();
                 if (server.running()) {
                     String message = login + " : " + line;
                     logger.info(message);
-                    sendMessageForClients(client.hashCode(), message);
+                    sendMessageForClients(message);
                 }
             }
         } catch (SocketException e) {
@@ -42,9 +43,16 @@ public class MessengerJob {
         }
     }
 
-    private void sendMessageForClients(int hash, String message) throws IOException {
+    private String doHandshake(DataInputStream in) throws IOException {
+        login = in.readUTF();
+        String loginInfo = login + " has entered the chatroom";
+        sendMessageForClients(loginInfo);
+        return login;
+    }
+
+    private void sendMessageForClients(String message) throws IOException {
         for (Socket socket : server.getConnectedSockets()) {
-            if(socket.hashCode() != hash) {
+            if(socket.hashCode() != client.hashCode()) {
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                 out.writeUTF(message);
             }
@@ -57,9 +65,5 @@ public class MessengerJob {
         } catch (IOException e) {
             logger.error("Socket connection failed to close: ", e);
         }
-    }
-
-    public Socket getClient() {
-        return client;
     }
 }
