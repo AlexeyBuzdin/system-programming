@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class MessengerJob {
 
@@ -17,17 +18,25 @@ public class MessengerJob {
     @Inject
     ServerRunningState server;
 
-    public void start(Socket client) {
-        try(DataInputStream in = new DataInputStream(client.getInputStream())) {
+    private Socket client;
+    private DataInputStream dataInputStream;
+
+    public void start(Socket clientSocket) {
+        try(DataInputStream in = new DataInputStream(clientSocket.getInputStream())) {
+            this.client = clientSocket;
+            this.dataInputStream = in;
+
             String login = in.readUTF();
             while (server.running()) {
-                String line = in.readUTF();
+                String line = dataInputStream.readUTF();
                 if (server.running()) {
                     String message = login + " : " + line;
                     logger.info(message);
                     sendMessageForClients(client.hashCode(), message);
                 }
             }
+        } catch (SocketException e) {
+            logger.info("Socket closed");
         } catch (IOException e) {
             logger.error("Failed to send a text message", e);
         }
@@ -40,5 +49,17 @@ public class MessengerJob {
                 out.writeUTF(message);
             }
         }
+    }
+
+    public void stop() {
+        try {
+            dataInputStream.close();
+        } catch (IOException e) {
+            logger.error("Socket connection failed to close: ", e);
+        }
+    }
+
+    public Socket getClient() {
+        return client;
     }
 }

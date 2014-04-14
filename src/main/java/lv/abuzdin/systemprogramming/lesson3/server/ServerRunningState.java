@@ -1,5 +1,8 @@
 package lv.abuzdin.systemprogramming.lesson3.server;
 
+import com.google.inject.Inject;
+import lv.abuzdin.systemprogramming.lesson3.server.jobs.MessengerJob;
+import lv.abuzdin.systemprogramming.lesson3.server.jobs.SocketConnectorJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +17,14 @@ public class ServerRunningState {
 
     private static Logger logger = LoggerFactory.getLogger(ServerRunningState.class);
 
+    @Inject
+    SocketConnectorJob socketConnector;
+
     private ServerSocket serverSocket;
 
     private AtomicBoolean running = new AtomicBoolean(true);
     private Deque<Socket> connectedSockets = new ConcurrentLinkedDeque<>();
+    private Deque<MessengerJob> messengers = new ConcurrentLinkedDeque<>();
 
     public boolean running() {
         return running.get();
@@ -27,8 +34,12 @@ public class ServerRunningState {
         try {
             running.set(false);
             serverSocket.close();
+
+            getMessengers().forEach(MessengerJob::stop);
+
+            socketConnector.stop();
+
             notifyAll();
-            System.exit(0);
         } catch (IOException e) {
             logger.error("Failed to stop Server", e);
         }
@@ -40,6 +51,14 @@ public class ServerRunningState {
 
     public Deque<Socket> getConnectedSockets() {
         return connectedSockets;
+    }
+
+    public void addMessengerJob(MessengerJob messengerJob) {
+        messengers.add(messengerJob);
+    }
+
+    public Deque<MessengerJob> getMessengers() {
+        return messengers;
     }
 
     public synchronized void mainThreadSleep() throws InterruptedException {

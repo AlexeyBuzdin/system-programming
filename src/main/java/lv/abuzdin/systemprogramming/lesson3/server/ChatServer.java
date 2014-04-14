@@ -24,8 +24,7 @@ public class ChatServer {
     ServerRunningState server;
 
     public void start() {
-        try {
-            ServerSocket serverSocket = new ServerSocket(PORT);
+        try (ServerSocket serverSocket = new ServerSocket(PORT)){
             server.setServerSocket(serverSocket);
             logger.info("Server started; Listening port " + PORT);
 
