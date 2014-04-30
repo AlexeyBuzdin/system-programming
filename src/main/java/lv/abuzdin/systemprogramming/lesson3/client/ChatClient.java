@@ -3,9 +3,13 @@ package lv.abuzdin.systemprogramming.lesson3.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatClient {
 
@@ -14,9 +18,14 @@ public class ChatClient {
     public static final int PORT = 8080;
     public static final String HOST = "localhost";
 
+    private AtomicBoolean running = new AtomicBoolean(true);
+
+    private Socket client;
+    private DataInputStream inputStream;
+
     public void start() {
         try {
-            Socket client = new Socket(HOST, PORT);
+            client = new Socket(HOST, PORT);
             System.out.println("Client started");
 
             final Scanner scanner = new Scanner(System.in);
@@ -31,19 +40,24 @@ public class ChatClient {
                     DataOutputStream out = new DataOutputStream(outToServer);
 
                     out.writeUTF(login);
-                    for (String line = scanner.nextLine(); !line.equalsIgnoreCase("q"); line = scanner.nextLine()) {
-                        out.writeUTF(line);
+                    String line = scanner.nextLine();
+                    while (running.get()) {
+                        if (!"exit".equalsIgnoreCase(line)) {
+                            out.writeUTF(line);
+                            line = scanner.nextLine();
+                        } else {
+                            closeClient();
+                        }
                     }
                 } catch (IOException ignored) {}
             }).start();
 
             new Thread(() -> {
-                try {
-                    InputStream inputStream = client.getInputStream();
-                    DataInputStream in = new DataInputStream(inputStream);
+                try (DataInputStream inputStream = new DataInputStream(client.getInputStream())){
+                    this.inputStream = inputStream;
 
-                    while (true) {
-                        System.out.println(in.readUTF());
+                    while (running.get()) {
+                        System.out.println(this.inputStream.readUTF());
                         Thread.sleep(1000);
                     }
                 } catch (Exception ignored) {}
@@ -52,5 +66,11 @@ public class ChatClient {
         } catch (Exception e) {
             logger.error("Client failed to start. ", e);
         }
+    }
+
+    private void closeClient() throws IOException {
+        running.set(false);
+        client.close();
+        inputStream.close();
     }
 }

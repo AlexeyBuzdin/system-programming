@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,7 +22,6 @@ public class ServerRunningState {
     private ServerSocket serverSocket;
 
     private AtomicBoolean running = new AtomicBoolean(true);
-    private Deque<Socket> connectedSockets = new ConcurrentLinkedDeque<>();
     private Deque<MessengerJob> messengers = new ConcurrentLinkedDeque<>();
 
     public boolean running() {
@@ -35,26 +33,22 @@ public class ServerRunningState {
             running.set(false);
             serverSocket.close();
 
-            getMessengers().forEach(MessengerJob::stop);
+            getMessengers().forEach(MessengerJob::forceStop);
 
             socketConnector.stop();
 
             notifyAll();
         } catch (IOException e) {
-            logger.error("Failed to stop Server", e);
+            logger.error("Failed to forceStop Server", e);
         }
-    }
-
-    public void addConnectedSocket(Socket client) {
-        connectedSockets.add(client);
-    }
-
-    public Deque<Socket> getConnectedSockets() {
-        return connectedSockets;
     }
 
     public void addMessengerJob(MessengerJob messengerJob) {
         messengers.add(messengerJob);
+    }
+
+    public void removeMessengerJob(MessengerJob messengerJob) {
+        messengers.remove(messengerJob);
     }
 
     public Deque<MessengerJob> getMessengers() {

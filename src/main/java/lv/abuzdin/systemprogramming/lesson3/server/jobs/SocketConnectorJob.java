@@ -34,7 +34,6 @@ public class SocketConnectorJob {
                 Socket client = serverSocket.accept();
                 MessengerJob messengerJob = messengerJobProvider.get();
                 server.addMessengerJob(messengerJob);
-                server.addConnectedSocket(client);
 
                 socketsExecutor.execute(() -> messengerJob.start(client));
                 start(serverSocket);

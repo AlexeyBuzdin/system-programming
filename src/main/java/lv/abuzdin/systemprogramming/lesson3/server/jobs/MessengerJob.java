@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -18,52 +19,70 @@ public class MessengerJob {
     @Inject
     ServerRunningState server;
 
-    private Socket client;
     private String login;
+
+    private Socket client;
     private DataInputStream dataInputStream;
+    private DataOutputStream dataOutputStream;
 
     public void start(Socket clientSocket) {
-        try(DataInputStream in = new DataInputStream(clientSocket.getInputStream())) {
+        try(DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream())) {
             this.client = clientSocket;
             this.dataInputStream = in;
+            this.dataOutputStream = out;
 
             doHandshake(in);
             while (server.running()) {
                 String line = in.readUTF();
                 if (server.running()) {
                     String message = login + " : " + line;
-                    logger.info(message);
                     sendMessageForClients(message);
                 }
             }
-        } catch (SocketException e) {
-            logger.info("Socket closed");
+        } catch (SocketException | EOFException e) {
+            clientDisconnected();
         } catch (IOException e) {
             logger.error("Failed to send a text message", e);
         }
     }
 
-    private String doHandshake(DataInputStream in) throws IOException {
+    private void doHandshake(DataInputStream in) throws IOException {
         login = in.readUTF();
         String loginInfo = login + " has entered the chatroom";
         sendMessageForClients(loginInfo);
-        return login;
     }
 
-    private void sendMessageForClients(String message) throws IOException {
-        for (Socket socket : server.getConnectedSockets()) {
-            if(socket.hashCode() != client.hashCode()) {
-                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                out.writeUTF(message);
+    private void sendMessageForClients(String message) {
+        logger.info(message);
+        for (MessengerJob messenger : server.getMessengers()) {
+            if(messenger.hashCode() != hashCode()) {
+                try {
+                    DataOutputStream out = messenger.getDataOutputStream();
+                    out.writeUTF(message);
+                } catch (IOException e) {
+                    logger.error("Failed to send message to messenger " + messenger.toString());
+                }
             }
         }
     }
 
-    public void stop() {
+    public DataOutputStream getDataOutputStream() {
+        return dataOutputStream;
+    }
+
+    private void clientDisconnected() {
+        sendMessageForClients(login + " has disconnected");
+        server.removeMessengerJob(this);
+    }
+
+    public void forceStop() {
         try {
+            client.close();
             dataInputStream.close();
+            dataOutputStream.close();
         } catch (IOException e) {
-            logger.error("Socket connection failed to close: ", e);
+            logger.error("Socket connection failed to force close: ", e);
         }
     }
 }

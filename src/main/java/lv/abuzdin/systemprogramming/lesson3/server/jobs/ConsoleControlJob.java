@@ -24,7 +24,7 @@ public class ConsoleControlJob {
                 String command;
                 while (server.running()) {
                     command = reader.readLine();
-                    if (command.trim().equalsIgnoreCase(EXIT_COMMAND)) {
+                    if (EXIT_COMMAND.equalsIgnoreCase(command)) {
                         logger.info("Server started shutting down");
                         server.stop();
                     }
