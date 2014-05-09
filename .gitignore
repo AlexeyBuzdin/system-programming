@@ -15,6 +15,7 @@ bin/
 gen/
 target/
 .gradle/
+gen-external-apklibs/
 
 # Project files
 .idea/
