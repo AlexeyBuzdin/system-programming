@@ -1,8 +1,8 @@
-package lv.abuzdin.systemprogramming.lesson3.server.jobs;
+package lv.abuzdin.systemprogramming.server.jobs;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import lv.abuzdin.systemprogramming.lesson3.server.ServerRunningState;
+import lv.abuzdin.systemprogramming.server.ServerRunningState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

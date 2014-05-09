@@ -1,8 +1,8 @@
-package lv.abuzdin.systemprogramming.lesson3.server;
+package lv.abuzdin.systemprogramming.server;
 
 import com.google.inject.Inject;
-import lv.abuzdin.systemprogramming.lesson3.server.jobs.ConsoleControlJob;
-import lv.abuzdin.systemprogramming.lesson3.server.jobs.SocketConnectorJob;
+import lv.abuzdin.systemprogramming.server.jobs.ConsoleControlJob;
+import lv.abuzdin.systemprogramming.server.jobs.SocketConnectorJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,8 +1,8 @@
-package lv.abuzdin.systemprogramming.lesson3.guice;
+package lv.abuzdin.systemprogramming.guice;
 
 import com.google.inject.AbstractModule;
-import lv.abuzdin.systemprogramming.lesson3.server.ServerRunningState;
-import lv.abuzdin.systemprogramming.lesson3.server.jobs.SocketConnectorJob;
+import lv.abuzdin.systemprogramming.server.ServerRunningState;
+import lv.abuzdin.systemprogramming.server.jobs.SocketConnectorJob;
 
 import static com.google.inject.Scopes.SINGLETON;
 

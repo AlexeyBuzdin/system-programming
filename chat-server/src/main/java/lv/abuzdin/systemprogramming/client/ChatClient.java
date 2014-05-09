@@ -1,4 +1,4 @@
-package lv.abuzdin.systemprogramming.lesson3.client;
+package lv.abuzdin.systemprogramming.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
