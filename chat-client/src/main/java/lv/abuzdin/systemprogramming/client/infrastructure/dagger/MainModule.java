@@ -36,7 +36,7 @@ public class MainModule implements DaggerModule {
         return appContext;
     }
 
-//    @Provides
+    @Provides
     LayoutInflater provideLayoutInflater() {
         return LayoutInflater.from(appContext);
     }

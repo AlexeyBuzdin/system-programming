@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.BaseAdapter;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseListAdapter<T> extends BaseAdapter {
@@ -11,7 +12,7 @@ public abstract class BaseListAdapter<T> extends BaseAdapter {
     @Inject
     Context context;
 
-    private List<T> data;
+    private List<T> data = new ArrayList<T>();
 
     @Override
     public int getCount() {
