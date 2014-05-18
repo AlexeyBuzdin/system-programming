@@ -1,4 +1,4 @@
-package lv.abuzdin.systemprogramming.client.presentation.home;
+package lv.abuzdin.systemprogramming.client.presentation;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -11,5 +11,7 @@
     <string name="no_img_found">No IMG found</string>
     <string name="app_not_available">App not available</string>
     <string name="no_items_available">No items available</string>
+    <string name="ip">IP</string>
+    <string name="port">Port</string>
 
 </resources>
