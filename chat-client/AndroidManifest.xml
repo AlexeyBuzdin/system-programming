@@ -12,7 +12,8 @@
                  android:theme="@style/Theme.Sherlock.Light"
                  android:name=".BaseApplication">
         <!--android:theme="@style/Theme.Sherlock"-->
-        <activity android:name=".presentation.MainActivity">
+        <activity android:name=".presentation.MainActivity"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

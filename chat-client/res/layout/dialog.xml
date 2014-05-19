@@ -13,6 +13,25 @@
         <TextView
                 android:layout_width="70px"
                 android:layout_height="wrap_content"
+                android:text="@string/username"
+                android:gravity="right"/>
+
+        <EditText
+                android:id="@+id/username_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:layout_width="70px"
+                android:layout_height="wrap_content"
                 android:text="@string/ip"
                 android:gravity="right"/>
 

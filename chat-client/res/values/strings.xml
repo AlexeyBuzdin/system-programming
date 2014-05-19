@@ -13,5 +13,6 @@
     <string name="no_items_available">No items available</string>
     <string name="ip">IP</string>
     <string name="port">Port</string>
+    <string name="username">User</string>
 
 </resources>

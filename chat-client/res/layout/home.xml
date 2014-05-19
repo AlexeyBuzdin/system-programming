@@ -8,9 +8,10 @@
     <EditText
             android:id="@+id/messageEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:inputType="text"
-            android:layout_alignParentBottom="true"/>
+            android:layout_alignParentBottom="true"
+            android:background="#ffeafcd0"/>
 
     <ListView android:id="@+id/chatView"
               android:layout_width="match_parent"
