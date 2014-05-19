@@ -7,15 +7,13 @@ import dagger.Module;
 import dagger.Provides;
 import lv.abuzdin.systemprogramming.client.BaseApplication;
 import lv.abuzdin.systemprogramming.client.presentation.MainActivity;
-import lv.abuzdin.systemprogramming.client.presentation.home.HomeFragment;
 
 import javax.inject.Singleton;
 
 @Module(
         injects = {
                 BaseApplication.class,
-                MainActivity.class,
-                HomeFragment.class
+                MainActivity.class
         }
 )
 public class MainModule implements DaggerModule {

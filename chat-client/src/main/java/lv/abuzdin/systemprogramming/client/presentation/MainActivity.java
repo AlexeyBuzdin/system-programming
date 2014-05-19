@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +62,8 @@ public class MainActivity extends SherlockFragmentActivity {
         BaseApplication.inject(this);
         ButterKnife.inject(this);
 
+        chatView.setAdapter(adapter);
+
         startSocket();
     }
 
@@ -99,30 +102,40 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private void startSocket() {
        try {
-           SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-           String ip = prefs.getString(KEY_IP, "");
-           String port = prefs.getString(KEY_PORT, "");
+           new Thread(new Runnable() {
+               @Override
+               public void run() {
+                   try {
+                       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                       String ip = prefs.getString(KEY_IP, "");
+                       String port = prefs.getString(KEY_PORT, "");
 
-           final Socket client = new Socket(ip, Integer.parseInt(port));
+                       Socket client = new Socket(ip, Integer.parseInt(port));
+                       DataInputStream inputStream = new DataInputStream(client.getInputStream());
 
-           new Thread(() -> {
-               try (DataInputStream inputStream = new DataInputStream(client.getInputStream())){
-                   this.inputStream = inputStream;
-
-                   while (true) {
-                       addMessage(this.inputStream.readUTF());
-                       Thread.sleep(1000);
+                       while (true) {
+                           addMessage(inputStream.readUTF());
+                           Thread.sleep(1000);
+                       }
+                   } catch (Exception e) {
+                       throw new RuntimeException(e);
                    }
-               } catch (Exception ignored) {}
+                }
            }).start();
        } catch (Exception e) {
-           Toast.makeText(this, "Failed to start Server Socket", Toast.LENGTH_SHORT).show();
+           Toast.makeText(this, "Failed to establish connection", Toast.LENGTH_SHORT).show();
+           Log.e("TAG", "Exception", e);
        }
     }
 
-    private void addMessage(String s) {
-        adapter.getData().add(s);
-        adapter.notifyDataSetChanged();
+    private void addMessage(final String s) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.getData().add(s);
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void openConnect() {

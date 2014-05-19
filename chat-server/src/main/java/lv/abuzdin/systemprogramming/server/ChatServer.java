@@ -6,6 +6,7 @@ import lv.abuzdin.systemprogramming.server.jobs.SocketConnectorJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 
 public class ChatServer {
@@ -26,7 +27,8 @@ public class ChatServer {
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)){
             server.setServerSocket(serverSocket);
-            logger.info("Server started; Listening port " + PORT);
+            InetAddress ip = InetAddress.getLocalHost();
+            logger.info("Server started with ip " + ip.getHostAddress() + "; Listening port " + PORT);
 
             consoleControl.start();
             socketConnector.start(serverSocket);

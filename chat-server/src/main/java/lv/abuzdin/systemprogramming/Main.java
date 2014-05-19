@@ -2,8 +2,8 @@ package lv.abuzdin.systemprogramming;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import lv.abuzdin.systemprogramming.lesson3.client.ChatClient;
-import lv.abuzdin.systemprogramming.lesson3.guice.GuiceModule;
+import lv.abuzdin.systemprogramming.client.ChatClient;
+import lv.abuzdin.systemprogramming.guice.GuiceModule;
 import lv.abuzdin.systemprogramming.server.ChatServer;
 
 public class Main {
